@@ -1,0 +1,42 @@
+{
+  "name": "discord-selfassign-roles-bot",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx tsx src/index.ts",
+    "build": "npx tsup"
+  },
+  "keywords": [],
+  "author": "ai03-2725",
+  "license": "AGPL-3.0",
+  "packageManager": "pnpm@10.5.2",
+  "dependencies": {
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.2.1",
+    "object-hash": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/object-hash": "^3.0.6",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild"
+    ]
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "format": "esm"
+  }
+}
