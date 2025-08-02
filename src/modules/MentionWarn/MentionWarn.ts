@@ -12,12 +12,14 @@ const SCAN_CHANNEL_TYPES: ChannelType[] = [ChannelType.GuildCategory, ChannelTyp
 export class MentionWarn extends Module {
 
   mentionAllowedRoleIds: string[]; 
+  freelyPingableRoleIds: string[];
 
   constructor(params: ModuleParams) {
     super(params);
 
     // Cache the env var values for easier lookup
-    this.mentionAllowedRoleIds = envVarManagerInstance.getMentionAllowedRoleIds();
+    this.mentionAllowedRoleIds = envVarManagerInstance.getMentioningAllowedRoleIds();
+    this.freelyPingableRoleIds = envVarManagerInstance.getFreelyPingableRoleIds();
 
     // Add mention handler
     this.client.on(Events.MessageCreate, (message) => {
@@ -52,17 +54,28 @@ export class MentionWarn extends Module {
         return;
       }
 
-      const pingList = [...message.mentions.members.keys()].filter(item => item !== message.author.id)
+      // Create a list of users that were pinged by the message
+      const pingList = [...message.mentions.members.keys()].filter(targetMemberId => {
+        // Exclude pinging self
+        if (targetMemberId === message.author.id) {
+          return false;
+        }
+        // Exclude members who have freely pingable roles assigned
+        const targetMemberInGuild = message.guild.members.resolve(targetMemberId)
+        if (targetMemberInGuild.roles.cache.some(role => this.freelyPingableRoleIds.includes(role.id))) {
+          return false;
+        }
+        return true;
+      })
 
       logDebug(`Replied user:`)
       logDebug(message.mentions.repliedUser)
       logDebug("Ping list:")
       logDebug(pingList)
 
+      // If resulting pinged members list has members, warn
       if (pingList.length > 0) {
-       
         warnConditionally(pingList, message)
-
       }
 
     })
