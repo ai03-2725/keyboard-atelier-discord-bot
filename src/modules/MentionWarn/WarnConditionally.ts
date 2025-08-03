@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, ContainerBuilder, GuildMember, Message, MessageFlags, TextDisplayBuilder, type Interaction, type InteractionReplyOptions } from "discord.js"
+import { ContainerBuilder, Message, MessageFlags } from "discord.js"
 import { logDebug, logError } from "../../core/Log";
 
 
@@ -12,29 +12,29 @@ export const warnConditionally = async (pingedIds: string[], message: Message<bo
 
   // Build the warning string
   if (replyPingEnabled) {
-    warningString = `Just in case - when replying to others with mentions enabled (with the \`@ON\` toggle)`
+    warningString = `Just in case since you replied to a message with mentions enabled (with the \`@ON\` toggle)`
     if (pingedIds.length > 1) {
-      warningString += ` or mentioning others with a ping`
+      warningString += ` and also pinged others in your message`
     
     }
   } else {
-    warningString = `Just in case - when mentioning others with a ping`
+    warningString = `Just in case since you mentioned others in your message`
   }
-  warningString += `, please make sure that you are using it considerately with justifiable reason.`
-  warningString += `\n`
+  warningString += ` - when pinging others, please make sure that you are only doing so **considerately** with **justifiable reason**.\n\n`
+  warningString += `For more details, see the [designer guidelines](<https://discord.com/channels/728571839529353216/1325034203833831444/1325034541198475284>).`
 
   const replyContainer = new ContainerBuilder()
-    .setAccentColor(0x808080)
+    .setAccentColor(0xFFFFFF)
     .addTextDisplayComponents(
       textDisplay => textDisplay
-        .setContent(warningString)
+        .setContent("**Hey!**\n\n" + warningString)
     )
     .addSeparatorComponents(
       separator => separator,
     )
     .addTextDisplayComponents(
       textDisplay => textDisplay
-        .setContent(`-# For more details, see the [designer guidelines](<https://discord.com/channels/728571839529353216/1325034203833831444/1325034541198475284>).\n-# Disable this message by [obtaining](<https://discord.com/channels/728571839529353216/728589828597219369/728590122110419066>) the \`@Ping-Warning-Bypass\` role.`)
+        .setContent(`-# This message is only shown once.`)
     )
 
   try {

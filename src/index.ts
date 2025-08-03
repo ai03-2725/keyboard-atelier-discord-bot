@@ -13,6 +13,7 @@ import { updateBotIconIfNecessary } from "./core/UpdateBotIcon";
 import { logDebug, logError, logInfo, LogLevel, logWarn } from "./core/Log";
 import { EnvVarManager } from "./core/EnvVarManager";
 import { MentionWarn } from "./modules/MentionWarn/MentionWarn";
+import { BotDatabaseManager } from "./core/BotDatabase";
 //import { AdministrationModule } from "./modules/Administration/Administration";
 
 
@@ -28,6 +29,10 @@ createBotDataDirIfNecessary()
 
 // Load bot config data
 let botData = loadBotDataJson();
+
+// Load bot database
+const dbManagerInstance = new BotDatabaseManager();
+export {dbManagerInstance}
 
 // Create a new client instance
 logDebug("Creating client")
@@ -79,6 +84,7 @@ try {
 // Handle exits gracefully
 const shutdown = (cause: "SIGTERM" | "SIGINT" | "uncaughtException") => {
   logInfo(`Shutting down due to reason: ${cause}`)
+  dbManagerInstance.closeDatabase()
   process.exit(cause === "uncaughtException" ? 1 : 0);
 }
 process
