@@ -12,41 +12,34 @@ export const warnConditionally = async (pingedIds: string[], message: Message<bo
 
   // Build the warning string
   if (replyPingEnabled) {
-    warningString = `It appears that you have pinged another member by leaving the mention setting (the \`@ON\` toggle) enabled when replying.\n`
+    warningString = `Just in case - when replying to others with mentions enabled (with the \`@ON\` toggle)`
     if (pingedIds.length > 1) {
-      warningString += `In addition, you have pinged others directly by username.\n`
+      warningString += ` or mentioning others with a ping`
+    
     }
-    warningString += `\n`
-  } else if (message.mentions.members) {
-    warningString = `It appears that you have pinged another member in your message.\n\n`
+  } else {
+    warningString = `Just in case - when mentioning others with a ping`
   }
-
-  // Finish the string off
-  warningString += `Please **refrain from pinging others** (either via at-mentioning or replies with \`@ON\`) **without justifiable reason** - it is considered poor etiquette.\n\n`
-  warningString += `For more details, please read the [community rules](<https://discord.com/channels/728571839529353216/728573336384307202/728575634233884702>) and [designer guidelines](<https://discord.com/channels/728571839529353216/1325034203833831444/1325034275233337397>).`
-  
-
-  // Build the reply components
-  const mentionUser = new TextDisplayBuilder()
-    .setContent(message.author.toString())
+  warningString += `, please make sure that you are using it considerately with justifiable reason.`
+  warningString += `\n`
 
   const replyContainer = new ContainerBuilder()
-    .setAccentColor(0xeb4034)
+    .setAccentColor(0x808080)
     .addTextDisplayComponents(
       textDisplay => textDisplay
-        .setContent(`**Hey!**\n\n` + warningString)
+        .setContent(warningString)
     )
     .addSeparatorComponents(
       separator => separator,
     )
     .addTextDisplayComponents(
       textDisplay => textDisplay
-        .setContent(`-# If you sent the mention with justifiable reason and awareness of the above, please disregard this warning.\n-# Further warnings can be disabled by obtaining the \`@Ping-Warning-Bypass\` role.`)
+        .setContent(`-# For more details, see the [designer guidelines](<https://discord.com/channels/728571839529353216/1325034203833831444/1325034541198475284>).\n-# Disable this message by [obtaining](<https://discord.com/channels/728571839529353216/728589828597219369/728590122110419066>) the \`@Ping-Warning-Bypass\` role.`)
     )
 
   try {
     // Reply
-    await message.reply({ components: [replyContainer], flags: MessageFlags.IsComponentsV2, });
+    await message.reply({ components: [replyContainer], flags: MessageFlags.IsComponentsV2 });
     logDebug("Replied to mention message.")
     return true;
   } catch (error) {
