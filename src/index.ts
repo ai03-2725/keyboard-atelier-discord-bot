@@ -14,6 +14,7 @@ import { logDebug, logError, logInfo, LogLevel, logWarn } from "./core/Log";
 import { EnvVarManager } from "./core/EnvVarManager";
 import { MentionWarn } from "./modules/MentionWarn/MentionWarn";
 import { BotDatabaseManager } from "./core/BotDatabase";
+import { HelpForumAdvisor } from "./modules/HelpForumAdvisor/HelpForumAdvisor";
 //import { AdministrationModule } from "./modules/Administration/Administration";
 
 
@@ -51,7 +52,8 @@ commandModules.push(new PingHandler({client: client}));
 // Non-command modules - these will not be queried for their commands
 logDebug("Loading modules without commands")
 const nonCommandModules: Module[] = []
-nonCommandModules.push(new MentionWarn({client: client}))
+// nonCommandModules.push(new MentionWarn({client: client}))
+nonCommandModules.push(new HelpForumAdvisor({client: client}))
 
 
 // Create a global commands list based on the commands list of each module
