@@ -27,7 +27,7 @@ export class HelpForumAdvisor extends Module {
   constructor(params: ModuleParams) {
     super(params);
 
-    this.helpChannelIds = ["1019942475764334642", "1020235693248753675", "1401078879086579743"]
+    this.helpChannelIds = envVarManagerInstance.getHelpForumIds()
 
 
     // Add thread handler

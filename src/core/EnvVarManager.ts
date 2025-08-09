@@ -1,10 +1,5 @@
 import dotenv from 'dotenv';
 
-import {
-  generateKeySync
-} from 'node:crypto'
-
-
 export class EnvVarManager {
 
   encryptionKey: Buffer;
@@ -31,12 +26,8 @@ export class EnvVarManager {
       console.error("Error: Missing APPLICATION_ID environment variable. \nPlease supply one either via setting the environment variable or in a .env file.");
       return false
     }
-    if (!process.env.MENTIONING_ALLOWED_ROLE_IDS) {
-      console.error("Missing MENTIONING_ALLOWED_ROLE_IDS environment variable. \nPlease supply one either via setting the environment variable or in a .env file.")
-      return false
-    }
-    if (!process.env.FREELY_PINGABLE_ROLE_IDS) {
-      console.error("Missing FREELY_PINGABLE_ROLE_IDS environment variable. \nPlease supply one either via setting the environment variable or in a .env file.")
+    if (!process.env.HELP_FORUM_IDS) {
+      console.error("Missing HELP_FORUM_IDS environment variable. \nPlease supply one either via setting the environment variable or in a .env file.")
       return false
     }
     return true
@@ -55,30 +46,14 @@ export class EnvVarManager {
     }
 
     // Sanity check mentioning-allowed IDs
-    const mentioningAllowedIds = process.env.MENTIONING_ALLOWED_ROLE_IDS!.split(",")
-    for (const id of mentioningAllowedIds) {
+    const helpForumIds = process.env.HELP_FORUM_IDS!.split(",")
+    for (const id of helpForumIds) {
       if (!/^[0-9]+$/.test(id)) {
         console.error(
-          `MENTIONING_ALLOWED_ROLE_IDS: ID "${id}" does not seem to be a valid ID. 
+          `HELP_FORUM_IDS: ID "${id}" does not seem to be a valid ID. 
 Please verify the following:
 
-- The MENTIONING_ALLOWED_ROLE_IDS variable is set to either a single Discord role ID or multiple IDs separated by commas.
-- If supplying multiple, there should be no commas before the first ID or trailing the last ID.
-- If supplying multiple, there should be no spaces, tabs, or other characters - only IDs and commas.`
-        )
-        return false
-      }
-    }
-
-    // Sanity check mentioning-allowed IDs
-    const freelyPingableIds = process.env.FREELY_PINGABLE_ROLE_IDS!.split(",")
-    for (const id of freelyPingableIds) {
-      if (!/^[0-9]+$/.test(id)) {
-        console.error(
-          `FREELY_PINGABLE_ROLE_IDS: ID "${id}" does not seem to be a valid ID. 
-Please verify the following:
-
-- The FREELY_PINGABLE_ROLE_IDS variable is set to either a single Discord role ID or multiple IDs separated by commas.
+- The HELP_FORUM_IDS variable is set to either a single Discord channel ID or multiple IDs separated by commas.
 - If supplying multiple, there should be no commas before the first ID or trailing the last ID.
 - If supplying multiple, there should be no spaces, tabs, or other characters - only IDs and commas.`
         )
@@ -98,12 +73,8 @@ Please verify the following:
     return process.env.APPLICATION_ID!
   }
 
-  getMentioningAllowedRoleIds = () => {
-    return process.env.MENTIONING_ALLOWED_ROLE_IDS!.split(",")
-  }
-
-  getFreelyPingableRoleIds = () => {
-    return process.env.FREELY_PINGABLE_ROLE_IDS!.split(",")
+  getHelpForumIds = () => {
+    return process.env.HELP_FORUM_IDS!.split(",")
   }
 
   getLogDebug = () => {

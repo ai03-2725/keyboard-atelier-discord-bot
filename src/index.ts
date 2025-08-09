@@ -12,7 +12,6 @@ import { pushSlashCommandsIfNecessary } from "./core/PushSlashCommands";
 import { updateBotIconIfNecessary } from "./core/UpdateBotIcon";
 import { logDebug, logError, logInfo, LogLevel, logWarn } from "./core/Log";
 import { EnvVarManager } from "./core/EnvVarManager";
-import { MentionWarn } from "./modules/MentionWarn/MentionWarn";
 import { BotDatabaseManager } from "./core/BotDatabase";
 import { HelpForumAdvisor } from "./modules/HelpForumAdvisor/HelpForumAdvisor";
 //import { AdministrationModule } from "./modules/Administration/Administration";
