@@ -126,7 +126,7 @@ export class HelpForumAdvisor extends Module {
       }
 
       // Catch commercial requests/do-work-for-me requests
-      if (/design (an? .*)?(one )?(for )?me/i.test(thread.name + firstMessageContents)) {
+      if (/design (an? .*)?(one )?(for )?me /i.test(thread.name + firstMessageContents)) {
         warnings.push(WarningTypes.COMMERCIAL_REQUEST)
       }
 
