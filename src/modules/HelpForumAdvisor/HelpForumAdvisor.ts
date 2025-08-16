@@ -9,12 +9,14 @@ import { getMessageShortContainer } from "./const/MessageShort";
 import { getMessageLongContainer } from "./const/MessageLong";
 import { getPossiblyNotAQuestionContainer } from "./const/MessageNotAQuestion";
 import { getPossibleReviewRequestContainer } from "./const/MessageReviewRequest";
+import { getMessageQuestionVagueContainer } from "./const/MessageVague";
 
 enum WarningTypes {
   "FIRST_MESSAGE_LENGTH_SHORT",
   "FIRST_MESSAGE_LENGTH_LONG",
   "MISSING_QUESTION_MARK",
   "POSSIBLY_REVIEW_THREAD",
+  "QUESTION_VAGUE",
 }
 
 
@@ -99,6 +101,12 @@ export class HelpForumAdvisor extends Module {
         warnings.push(WarningTypes.POSSIBLY_REVIEW_THREAD)
       }
 
+      // Check title for "can/could someone/anyone help-" since those tend to be problematic or vague
+      if (/(can|could) (some|any)one (please )?(help|check)/i.test(thread.name)) {
+        warnings.push(WarningTypes.QUESTION_VAGUE)
+        warnings.push(WarningTypes.POSSIBLY_REVIEW_THREAD)
+      }
+
       // If any warnings exist, build the warning reply
       if (warnings.length === 0) {
         return;
@@ -127,6 +135,10 @@ export class HelpForumAdvisor extends Module {
 
       if (warnings.includes(WarningTypes.MISSING_QUESTION_MARK)) {
         replyItems.push(getPossiblyNotAQuestionContainer())
+      }
+
+      if (warnings.includes(WarningTypes.QUESTION_VAGUE)) {
+        replyItems.push(getMessageQuestionVagueContainer())
       }
       
       if (warnings.includes(WarningTypes.POSSIBLY_REVIEW_THREAD)) {

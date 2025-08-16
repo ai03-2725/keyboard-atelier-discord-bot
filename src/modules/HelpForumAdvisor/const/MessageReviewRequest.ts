@@ -4,7 +4,9 @@ const HEADER =
 `### **Thread might be a "review-this-entire-project" request**`
 
 const BODY = 
-`*This warning is issued when the thread title or first message includes the term "feedback" or "review".*
+`*This warning is issued when*
+- *The thread title or first message includes the term "feedback" or "review", or *
+- *The thread title is a variant of "could someone help/check...".*
 
 As per the posting guidelines of this forum, threads along the lines of "review this entire project for me" are not allowed in the help forums.
 Please create a thread for your project in the project forums instead and request a review there.
