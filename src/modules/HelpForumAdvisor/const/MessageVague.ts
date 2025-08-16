@@ -5,9 +5,9 @@ const HEADER =
 
 const BODY = 
 `*This warning is issued when the thread title is a variant of commonly problematic patterns:*
-*"Can someone...", "Can I get...", "I need...", etc.*
+*"Can someone...", "Can I get...", or "I need...".*
 
-When posting a question, please make sure it is not vague and is clearly specific without needing to open the thread.
+When posting a question, please make sure it is specific and clear without needing to open the thread.
 
 *Acceptable examples:*
 - "What do I look for when choosing diodes for a keyboard matrix?"
