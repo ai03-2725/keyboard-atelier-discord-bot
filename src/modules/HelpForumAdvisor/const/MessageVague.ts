@@ -4,7 +4,8 @@ const HEADER =
 `### **Question might be vague or incomplete**`
 
 const BODY = 
-`*This warning is issued when the thread title is a variant of "could someone help/check...".*
+`*This warning is issued when the thread title is a variant of commonly problematic patterns:*
+*"Can someone...", "Can I get...", "I need...", etc.*
 
 When posting a question, please make sure it is not vague and is clearly specific without needing to open the thread.
 
@@ -17,7 +18,7 @@ When posting a question, please make sure it is not vague and is clearly specifi
 - "Can someone check my decision?"`
 
 
-export const getMessageQuestionVagueContainer = () => {
+export const getQuestionVagueContainer = () => {
   const reply = new ContainerBuilder()
     .addTextDisplayComponents(
       textDisplay => textDisplay

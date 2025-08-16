@@ -9,8 +9,9 @@ import { getMessageShortContainer } from "./const/MessageShort";
 import { getMessageLongContainer } from "./const/MessageLong";
 import { getPossiblyNotAQuestionContainer } from "./const/MessageNotAQuestion";
 import { getPossibleReviewRequestContainer } from "./const/MessageReviewRequest";
-import { getMessageQuestionVagueContainer } from "./const/MessageVague";
 import { sleep } from "../../util/Sleep";
+import { getQuestionVagueContainer } from "./const/MessageVague";
+import { getCommercialContainer } from "./const/MessageCommercial";
 
 enum WarningTypes {
   "FIRST_MESSAGE_LENGTH_SHORT",
@@ -18,6 +19,7 @@ enum WarningTypes {
   "MISSING_QUESTION_MARK",
   "POSSIBLY_REVIEW_THREAD",
   "QUESTION_VAGUE",
+  "COMMERCIAL_REQUEST"
 }
 
 
@@ -119,15 +121,33 @@ export class HelpForumAdvisor extends Module {
       }
 
       // Check both title and first message for occurrences of the words "feedback" or "review"
-      if (/(feedback|review)/.test(thread.name + firstMessageContents)) {
+      if (/(feedback|review)/i.test(thread.name + firstMessageContents)) {
         warnings.push(WarningTypes.POSSIBLY_REVIEW_THREAD)
       }
 
-      // Check title for "can/could someone/anyone help-" since those tend to be problematic or vague
-      if (/(can|could) (some|any)one (please )?(help|check)/i.test(thread.name)) {
+      // Catch commercial requests/do-work-for-me requests
+      if (/design (an? .*)?(one )?(for )?me/i.test(thread.name + firstMessageContents)) {
+        warnings.push(WarningTypes.COMMERCIAL_REQUEST)
+      }
+
+      // Check title for commonly problematic/vague question structures
+      // - "can/could someone/anyone-"
+      if (/(can|could) (some|any)one/i.test(thread.name)) {
         warnings.push(WarningTypes.QUESTION_VAGUE)
         warnings.push(WarningTypes.POSSIBLY_REVIEW_THREAD)
       }
+
+      // - "can/could I get/receive"
+      if (/(can|could) I (get|receive)/i.test(thread.name)) {
+        warnings.push(WarningTypes.QUESTION_VAGUE)
+        warnings.push(WarningTypes.POSSIBLY_REVIEW_THREAD)
+      }
+
+      // - "I need"
+      if (/i need/i.test(thread.name)) {
+        warnings.push(WarningTypes.QUESTION_VAGUE)
+      }
+      
 
       // If any warnings exist, build the warning reply
       if (warnings.length === 0) {
@@ -160,7 +180,7 @@ export class HelpForumAdvisor extends Module {
       }
 
       if (warnings.includes(WarningTypes.QUESTION_VAGUE)) {
-        replyItems.push(getMessageQuestionVagueContainer())
+        replyItems.push(getQuestionVagueContainer())
       }
       
       if (warnings.includes(WarningTypes.POSSIBLY_REVIEW_THREAD)) {
@@ -173,6 +193,10 @@ export class HelpForumAdvisor extends Module {
 
       if (warnings.includes(WarningTypes.FIRST_MESSAGE_LENGTH_LONG)) {
         replyItems.push(getMessageLongContainer())
+      }
+
+      if (warnings.includes(WarningTypes.COMMERCIAL_REQUEST)) {
+        replyItems.push(getCommercialContainer())
       }
 
       const replyFooter = new ContainerBuilder()
@@ -197,10 +221,6 @@ export class HelpForumAdvisor extends Module {
         return false;
       }
 
-
-
-
-      
     })
   }
 
