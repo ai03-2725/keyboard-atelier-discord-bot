@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, InteractionContextType, Events, ChannelType, ContainerBuilder, MessageFlags, TextDisplayBuilder } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, InteractionContextType, Events, ChannelType, ContainerBuilder, MessageFlags, TextDisplayBuilder, Message, Collection } from "discord.js";
 import { Module, type ModuleParams } from "../../structures/BaseModules";
 import { GenericCommandModule } from "../../structures/GenericCommandModule";
 import { interactionReplySafely } from "../../util/InteractionReplySafely";
@@ -10,6 +10,7 @@ import { getMessageLongContainer } from "./const/MessageLong";
 import { getPossiblyNotAQuestionContainer } from "./const/MessageNotAQuestion";
 import { getPossibleReviewRequestContainer } from "./const/MessageReviewRequest";
 import { getMessageQuestionVagueContainer } from "./const/MessageVague";
+import { sleep } from "../../util/Sleep";
 
 enum WarningTypes {
   "FIRST_MESSAGE_LENGTH_SHORT",
@@ -64,8 +65,29 @@ export class HelpForumAdvisor extends Module {
       // Checks passed - start scanning its contents
       logDebug("Handling thread")
 
+      // Wait for the first message to be posted
+      // Can take some time after thread creation due to slow file uploads
+      const MAX_THREAD_TIMEOUT = 120 * 1000;
+      const THREAD_CHECK_DELAY = 2 * 1000;
+      let currentWaitTime = 0;
+      let messagesInThread: Collection<string, Message<true>>;
+      
+      while (true) {
+        await sleep(THREAD_CHECK_DELAY);
+        currentWaitTime += THREAD_CHECK_DELAY;
+        messagesInThread = await thread.messages.fetch();
+        // Once thread contents exist (first message exists), proceed to checks
+        if (messagesInThread.first()) {
+          break;
+        } 
+        // Otherwise if thread is empty after 2 minutes of timeout, cancel
+        else if (currentWaitTime > MAX_THREAD_TIMEOUT) {
+          logDebug("Skipping handling - reached timeout")
+          return;
+        }
+      }
+
       // Get text contents of first message
-      const messagesInThread = await thread.messages.fetch();
       const firstMessageContents = messagesInThread.first().content;
 
       logDebug(firstMessageContents)
