@@ -6,7 +6,7 @@ const HEADER =
 const BODY = 
 `*This warning is issued when*
 - *The thread title or first message includes the term "feedback" or "review", or *
-- *The thread title is a variant of "can someone...", "can I get...", or "I need..." which commonly fall under this category.*
+- *The thread title is a variant of "can someone..." or "can I get..." which commonly fall under this category.*
 
 As per the posting guidelines of this forum, threads along the lines of "review this entire project for me" are not allowed in the help forums.
 Please create a thread for your project in the project forums instead and request a review there.

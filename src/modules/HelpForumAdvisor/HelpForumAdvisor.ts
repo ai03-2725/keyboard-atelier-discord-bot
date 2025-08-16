@@ -12,6 +12,7 @@ import { getPossibleReviewRequestContainer } from "./const/MessageReviewRequest"
 import { sleep } from "../../util/Sleep";
 import { getQuestionVagueContainer } from "./const/MessageVague";
 import { getCommercialContainer } from "./const/MessageCommercial";
+import { getQuestionInThreadTitleContainer } from "./const/MessageStartsWithQuestion";
 
 enum WarningTypes {
   "FIRST_MESSAGE_LENGTH_SHORT",
@@ -19,7 +20,8 @@ enum WarningTypes {
   "MISSING_QUESTION_MARK",
   "POSSIBLY_REVIEW_THREAD",
   "QUESTION_VAGUE",
-  "COMMERCIAL_REQUEST"
+  "COMMERCIAL_REQUEST",
+  "STARTS_WITH_QUESTION"
 }
 
 
@@ -147,6 +149,11 @@ export class HelpForumAdvisor extends Module {
       if (/i need/i.test(thread.name)) {
         warnings.push(WarningTypes.QUESTION_VAGUE)
       }
+
+      // Question starts with "Question"
+      if (/^(I have a )?Question /i.test(thread.name)) {
+        warnings.push(WarningTypes.STARTS_WITH_QUESTION)
+      }
       
 
       // If any warnings exist, build the warning reply
@@ -181,6 +188,10 @@ export class HelpForumAdvisor extends Module {
 
       if (warnings.includes(WarningTypes.QUESTION_VAGUE)) {
         replyItems.push(getQuestionVagueContainer())
+      }
+
+      if (warnings.includes(WarningTypes.STARTS_WITH_QUESTION)) {
+        replyItems.push(getQuestionInThreadTitleContainer())
       }
       
       if (warnings.includes(WarningTypes.POSSIBLY_REVIEW_THREAD)) {
