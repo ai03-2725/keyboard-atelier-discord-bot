@@ -1,7 +1,7 @@
 import { ContainerBuilder } from "discord.js"
 
 const HEADER = 
-`### **Question might be a commercial request**`
+`### **Post might be a commercial request**`
 
 const BODY = 
 `*This warning is issued when the thread title or first post contains "design ... for me" or similar.*

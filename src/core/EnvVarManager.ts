@@ -11,7 +11,7 @@ export class EnvVarManager {
     if (!this.sanityCheckEnvVars()) {
       process.exit(1);
     }
-    
+
   }
 
   loadEnvVars: () => boolean = () => {
@@ -45,7 +45,7 @@ export class EnvVarManager {
       return false
     }
 
-    // Sanity check mentioning-allowed IDs
+    // Sanity check channel IDs
     const helpForumIds = process.env.HELP_FORUM_IDS!.split(",")
     for (const id of helpForumIds) {
       if (!/^[0-9]+$/.test(id)) {
@@ -54,6 +54,21 @@ export class EnvVarManager {
 Please verify the following:
 
 - The HELP_FORUM_IDS variable is set to either a single Discord channel ID or multiple IDs separated by commas.
+- If supplying multiple, there should be no commas before the first ID or trailing the last ID.
+- If supplying multiple, there should be no spaces, tabs, or other characters - only IDs and commas.`
+        )
+        return false
+      }
+    }
+
+    const projectForumIds = process.env.PROJECT_FORUM_IDS!.split(",")
+    for (const id of projectForumIds) {
+      if (!/^[0-9]+$/.test(id)) {
+        console.error(
+          `PROJECT_FORUM_IDS: ID "${id}" does not seem to be a valid ID. 
+Please verify the following:
+
+- The PROJECT_FORUM_IDS variable is set to either a single Discord channel ID or multiple IDs separated by commas.
 - If supplying multiple, there should be no commas before the first ID or trailing the last ID.
 - If supplying multiple, there should be no spaces, tabs, or other characters - only IDs and commas.`
         )
@@ -75,6 +90,10 @@ Please verify the following:
 
   getHelpForumIds = () => {
     return process.env.HELP_FORUM_IDS!.split(",")
+  }
+
+  getProjectForumIds = () => {
+    return process.env.PROJECT_FORUM_IDS!.split(",")
   }
 
   getLogDebug = () => {

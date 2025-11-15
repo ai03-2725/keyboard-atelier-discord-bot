@@ -14,6 +14,7 @@ import { logDebug, logError, logInfo, LogLevel, logWarn } from "./core/Log";
 import { EnvVarManager } from "./core/EnvVarManager";
 import { BotDatabaseManager } from "./core/BotDatabase";
 import { HelpForumAdvisor } from "./modules/HelpForumAdvisor/HelpForumAdvisor";
+import { ProjectsForumAdvisor } from "./modules/ProjectsForumAdvisor/ProjectsForumAdvisor";
 //import { AdministrationModule } from "./modules/Administration/Administration";
 
 
@@ -41,18 +42,22 @@ const client = new Client({
 });
 
 
+
 // Create an instance of all bot modules
+
 
 // Command modules - modules based on CommandModule which provide slash command(s)
 logDebug("Loading modules with commands")
 const commandModules: CommandModule[] = []
 commandModules.push(new PingHandler({client: client}));
 
+
 // Non-command modules - these will not be queried for their commands
 logDebug("Loading modules without commands")
 const nonCommandModules: Module[] = []
 // nonCommandModules.push(new MentionWarn({client: client}))
 nonCommandModules.push(new HelpForumAdvisor({client: client}))
+nonCommandModules.push(new ProjectsForumAdvisor({client: client}))
 
 
 // Create a global commands list based on the commands list of each module
@@ -61,6 +66,7 @@ let allCommands: SharedSlashCommand[] = [];
 for (const module of commandModules) {
   allCommands = allCommands.concat(module.getCommands())
 }
+
 
 // If any changes have occurred to the slash commands since last boot, push changes via REST API
 await pushSlashCommandsIfNecessary(allCommands, botData)
@@ -72,6 +78,7 @@ client.once(Events.ClientReady, async readyClient => {
   // Update avatar if it has changed since last boot
   updateBotIconIfNecessary(readyClient, botData)
 });
+
 
 // Log in to Discord
 try {
