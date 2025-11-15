@@ -16,7 +16,6 @@ enum WarningTypes {
 export class ProjectsForumAdvisor extends Module {
 
   // Help channel IDs
-  // TODO: Convert to env vars
   projectChannelIds: string[];
 
   constructor(params: ModuleParams) {
@@ -28,63 +27,53 @@ export class ProjectsForumAdvisor extends Module {
     // Add thread handler
     this.client.on(Events.ThreadCreate, async (thread, newlyCreated) => {
 
-      logDebug("Received new thread")
+      logDebug("ProjectsForumAdvisor: Received new thread")
       //logDebug(thread)
 
       if (!newlyCreated) {
-        logDebug("Not newly created")
+        logDebug("ProjectsForumAdvisor: Not newly created")
         return;
       }
 
       // Check if it is a forum thread 
       if (!(thread.type === ChannelType.PublicThread && thread.parent.type === ChannelType.GuildForum)) {
-        logDebug("Not a public thread in a forum channel")
+        logDebug("ProjectsForumAdvisor: Not a public thread in a forum channel")
         return;
       }
 
       // Check if the thread was posted into a channel this module should manage
       if (!(this.projectChannelIds.includes(thread.parent.id))) {
-        logDebug("Not in a channel this module should manage")
+        logDebug("ProjectsForumAdvisor: Not in a channel this module should manage")
         return;
       }
 
       // Make sure that the sender is not the bot itself
       if (thread.ownerId === this.client.user.id) {
-        logDebug("Not replying to self")
+        logDebug("ProjectsForumAdvisor: Not replying to self")
         return;
       }
 
       // Checks passed - start scanning its contents
-      logDebug("Handling thread")
+      logDebug("ProjectsForumAdvisor: Handling thread")
 
       // Wait for the first message to be posted
       // Can take some time after thread creation due to slow file uploads
       const MAX_THREAD_TIMEOUT = 120 * 1000;
-      const THREAD_CHECK_DELAY = 2 * 1000;
-      let currentWaitTime = 0;
-      let messagesInThread: Collection<string, Message<true>>;
-      
-      while (true) {
-        await sleep(THREAD_CHECK_DELAY);
-        currentWaitTime += THREAD_CHECK_DELAY;
-        messagesInThread = await thread.messages.fetch();
-        // Once thread contents exist (first message exists), proceed to checks
-        if (messagesInThread.first()) {
-          break;
-        } 
-        // Otherwise if thread is empty after 2 minutes of timeout, cancel
-        else if (currentWaitTime > MAX_THREAD_TIMEOUT) {
-          logDebug("Skipping handling - reached timeout")
-          return;
-        }
+
+      const messagesInThread = await thread.awaitMessages({ filter: () => true, max: 1, time: MAX_THREAD_TIMEOUT, errors: ['time'] })
+        .catch(collected => {
+          logDebug(`ProjectsForumAdvisor: No messages found in thread after 2 minutes; cancelling scan/reply`)
+          return
+        })
+      if (!messagesInThread) {
+        logDebug("ProjectsForumAdvisor: No messages collected")
+        return
       }
 
       // Get text contents of first message
+      logDebug("ProjectsForumAdvisor: Collected first message")
       const firstMessageContents = messagesInThread.first().content;
-
       logDebug(firstMessageContents)
-
-
 
       // Build an array of warnings
       let warnings: WarningTypes[] = []
@@ -124,7 +113,7 @@ export class ProjectsForumAdvisor extends Module {
       }
 
       // Title includes with "Question"
-      if (/(I have a )?Question /i.test(thread.name)) {
+      if (/(I have a )?Question/i.test(thread.name)) {
         warnings.push(WarningTypes.POSSIBLY_QUESTION)
         warnings.push(WarningTypes.INVALID_TITLE)
       }
@@ -139,7 +128,7 @@ export class ProjectsForumAdvisor extends Module {
       if (/(?<!(Tactile |Haptic |Visual |Auditory ))Feedback/i.test(thread.name)) {
         warnings.push(WarningTypes.INVALID_TITLE)
       }
-      
+
 
       // If any warnings exist, build the warning reply
       if (warnings.length === 0) {
@@ -147,7 +136,7 @@ export class ProjectsForumAdvisor extends Module {
       }
 
       let replyItems = []
-      replyItems.push(new TextDisplayBuilder({content: `<@${thread.ownerId}>`}))
+      replyItems.push(new TextDisplayBuilder({ content: `<@${thread.ownerId}>` }))
 
       const replyHeader = new ContainerBuilder()
         .addTextDisplayComponents(
@@ -167,7 +156,7 @@ export class ProjectsForumAdvisor extends Module {
         )
       replyItems.push(replyHeader)
 
-            if (warnings.includes(WarningTypes.INVALID_TITLE)) {
+      if (warnings.includes(WarningTypes.INVALID_TITLE)) {
         replyItems.push(getInvalidTitleContainer())
       }
 
@@ -193,7 +182,7 @@ export class ProjectsForumAdvisor extends Module {
       try {
         // Reply
         await thread.send({ components: replyItems, flags: MessageFlags.IsComponentsV2 });
-        logDebug("Replied to mention message.")
+        logDebug("ProjectsForumAdvisor: Replied to mention message.")
         return true;
       } catch (error) {
         logError("Failed to reply to message:");

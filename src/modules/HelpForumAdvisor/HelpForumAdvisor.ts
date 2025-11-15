@@ -25,7 +25,6 @@ enum WarningTypes {
 export class HelpForumAdvisor extends Module {
 
   // Help channel IDs
-  // TODO: Convert to env vars
   helpChannelIds: string[];
 
   constructor(params: ModuleParams) {
@@ -37,60 +36,52 @@ export class HelpForumAdvisor extends Module {
     // Add thread handler
     this.client.on(Events.ThreadCreate, async (thread, newlyCreated) => {
 
-      logDebug("Received new thread")
+      logDebug("HelpForumAdvisor: Received new thread")
       //logDebug(thread)
 
       if (!newlyCreated) {
-        logDebug("Not newly created")
+        logDebug("HelpForumAdvisor: Not newly created")
         return;
       }
 
       // Check if it is a forum thread 
       if (!(thread.type === ChannelType.PublicThread && thread.parent.type === ChannelType.GuildForum)) {
-        logDebug("Not a public thread in a forum channel")
+        logDebug("HelpForumAdvisor: Not a public thread in a forum channel")
         return;
       }
 
       // Check if the thread was posted into a channel this module should manage
       if (!(this.helpChannelIds.includes(thread.parent.id))) {
-        logDebug("Not in a channel this module should manage")
+        logDebug("HelpForumAdvisor: Not in a channel this module should manage")
         return;
       }
 
       // Make sure that the sender is not the bot itself
       if (thread.ownerId === this.client.user.id) {
-        logDebug("Not replying to self")
+        logDebug("HelpForumAdvisor: Not replying to self")
         return;
       }
 
       // Checks passed - start scanning its contents
-      logDebug("Handling thread")
+      logDebug("HelpForumAdvisor: Handling thread")
 
       // Wait for the first message to be posted
       // Can take some time after thread creation due to slow file uploads
       const MAX_THREAD_TIMEOUT = 120 * 1000;
-      const THREAD_CHECK_DELAY = 2 * 1000;
-      let currentWaitTime = 0;
-      let messagesInThread: Collection<string, Message<true>>;
-      
-      while (true) {
-        await sleep(THREAD_CHECK_DELAY);
-        currentWaitTime += THREAD_CHECK_DELAY;
-        messagesInThread = await thread.messages.fetch();
-        // Once thread contents exist (first message exists), proceed to checks
-        if (messagesInThread.first()) {
-          break;
-        } 
-        // Otherwise if thread is empty after 2 minutes of timeout, cancel
-        else if (currentWaitTime > MAX_THREAD_TIMEOUT) {
-          logDebug("Skipping handling - reached timeout")
-          return;
-        }
+
+      const messagesInThread = await thread.awaitMessages({ filter: () => true, max: 1, time: MAX_THREAD_TIMEOUT, errors: ['time'] })
+        .catch(collected => {
+          logDebug(`HelpForumAdvisor: No messages found in thread after 2 minutes; cancelling scan/reply`)
+          return
+        })
+      if (!messagesInThread) {
+        logDebug("HelpForumAdvisor: No messages collected")
+        return
       }
 
       // Get text contents of first message
+      logDebug("HelpForumAdvisor: Collected first message")
       const firstMessageContents = messagesInThread.first().content;
-
       logDebug(firstMessageContents)
 
       // Build an array of warnings
@@ -221,7 +212,7 @@ export class HelpForumAdvisor extends Module {
       try {
         // Reply
         await thread.send({ components: replyItems, flags: MessageFlags.IsComponentsV2 });
-        logDebug("Replied to mention message.")
+        logDebug("HelpForumAdvisor: Replied to mention message.")
         return true;
       } catch (error) {
         logError("Failed to reply to message:");
