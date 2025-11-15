@@ -1,10 +1,7 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, InteractionContextType, Events, ChannelType, ContainerBuilder, MessageFlags, TextDisplayBuilder, Message, Collection } from "discord.js";
+import { Events, ChannelType, ContainerBuilder, MessageFlags, TextDisplayBuilder, Message, Collection } from "discord.js";
 import { Module, type ModuleParams } from "../../structures/BaseModules";
-import { GenericCommandModule } from "../../structures/GenericCommandModule";
-import { interactionReplySafely } from "../../util/InteractionReplySafely";
-import { logDebug, logError, logInfo } from "../../core/Log";
-import { dbManagerInstance, envVarManagerInstance } from "../..";
-import { DatabaseType } from "../../core/BotDatabase";
+import { logDebug, logError } from "../../core/Log";
+import { envVarManagerInstance } from "../..";
 import { sleep } from "../../util/Sleep";
 import { getInvalidTitleContainer } from "./const/MessageInvalidTitle";
 import { getCommercialContainer } from "./const/MessageCommercial";
