@@ -82,7 +82,7 @@ export class HelpForumAdvisor extends Module {
       // Use manual fetch method since above proved unreliable
       let messagesInThread: Collection<string, Message<true>>;
       let timeoutCounter = 0;
-      const DELAY_PER_FETCH = 5000;
+      const DELAY_PER_FETCH = 10 * 1000;
       while (true) {
         sleep(DELAY_PER_FETCH);
         messagesInThread = await thread.messages.fetch({ limit: 5 });
