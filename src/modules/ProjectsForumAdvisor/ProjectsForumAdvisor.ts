@@ -60,14 +60,36 @@ export class ProjectsForumAdvisor extends Module {
       // Can take some time after thread creation due to slow file uploads
       const MAX_THREAD_TIMEOUT = 120 * 1000;
 
-      const messagesInThread = await thread.awaitMessages({ filter: () => true, max: 1, time: MAX_THREAD_TIMEOUT, errors: ['time'] })
-        .catch(collected => {
-          logDebug(`ProjectsForumAdvisor: No messages found in thread after 2 minutes; cancelling scan/reply`)
+      // const messagesInThread = await thread.awaitMessages({ filter: () => true, max: 1, time: MAX_THREAD_TIMEOUT, errors: ['time'] })
+      //   .catch(collected => {
+      //     logDebug(`ProjectsForumAdvisor: No messages found in thread after 2 minutes; cancelling scan/reply`)
+      //     return
+      //   })
+      // if (!messagesInThread) {
+      //   logDebug("ProjectsForumAdvisor: No messages collected")
+      //   return
+      // }
+
+      // Use manual fetch method since above proved unreliable
+      let messagesInThread: Collection<string, Message<true>>;
+      let timeoutCounter = 0;
+      const DELAY_PER_FETCH = 5000;
+      while (true) {
+        sleep(DELAY_PER_FETCH);
+        messagesInThread = await thread.messages.fetch({ limit: 5 });
+        const messagesLength = [...messagesInThread.values()].length
+        if (messagesLength >= 1) {
+          logDebug("At least one message received; proceeding")
+          break
+        }
+        else if (timeoutCounter > MAX_THREAD_TIMEOUT) {
+          logDebug("No messages in thread after timeout")
           return
-        })
-      if (!messagesInThread) {
-        logDebug("ProjectsForumAdvisor: No messages collected")
-        return
+        }
+        else {
+          logDebug("No messages, waiting...")
+          timeoutCounter += DELAY_PER_FETCH
+        }
       }
 
       // Get text contents of first message
